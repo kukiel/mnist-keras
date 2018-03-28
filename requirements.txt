@@ -5,4 +5,4 @@ Flask-Cors==3.0.3
 gunicorn==19.7.1
 Keras==2.1.5
 numpy==1.14.2
-tensorflow-gpu==1.4.0
+tensorflow==1.4.0
