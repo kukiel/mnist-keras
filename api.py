@@ -21,17 +21,26 @@ CORS(app)
 api = Api(app)
 
 model = load_model('mnist-model.h5')
+model_convnet = load_model('mnist-model-conv.h5')
+reshape_dict = {'dense': (1, 784), 'conv': (1, 28, 28, 1)}
 
 
 class Model(Resource):
     def post(self):
         scale = request.json.get('scale')
+        layers_type = request.json.get('type', 'conv')
         number_to_predict = np.asarray([request.json.get('data')])
 
         image = number_to_predict.reshape((28 * scale, 28 * scale))
-        resized_image = imresize(image, (28, 28), interp='nearest').reshape((1, 784))
+        resized_image = imresize(image, (28, 28), interp='nearest').reshape(reshape_dict.get(layers_type))
         normalized_image = np.divide(resized_image, 255)
-        result = model.predict(normalized_image)
+
+        result = None
+
+        if layers_type == 'dense':
+            result = model.predict(normalized_image)
+        elif layers_type == 'conv':
+            result = model_convnet.predict(normalized_image)
 
         return jsonify({'prediction': result.tolist()})
 
